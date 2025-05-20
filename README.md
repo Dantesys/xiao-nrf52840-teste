@@ -1,0 +1,1 @@
+# xiao-nrf52840-acelerometro-teste
