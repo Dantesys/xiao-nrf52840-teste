@@ -8,15 +8,15 @@ enum {
   ESQUERDA = 3
 };
 
-int gesture = -1;
-
+int movimento = -1;
+//Definindo o servico Bluetooth
 BLEService gestureService(deviceServiceUuid); 
 BLEByteCharacteristic gestureCharacteristic(deviceServiceCharacteristicUuid, BLERead | BLEWrite);
 
 void setup() {
   Serial.begin(9600);
   while (!Serial);  
-  
+  //Leds
   pinMode(LED_BLUE, OUTPUT);
   pinMode(LED_GREEN, OUTPUT);
   pinMode(LED_RED, OUTPUT);
@@ -28,10 +28,10 @@ void setup() {
 
   
   if (!BLE.begin()) {
-    Serial.println("- Starting Bluetooth® Low Energy module failed!");
+    Serial.println("- Iniciando Bluetooth® Low Energy - FALHA!");
     while (1);
   }
-
+  //Definindo nome e caracteristica
   BLE.setLocalName("XIAO (SLAVE)");
   BLE.setAdvertisedService(gestureService);
   gestureService.addCharacteristic(gestureCharacteristic);
@@ -44,66 +44,68 @@ void setup() {
 }
 
 void loop() {
+  //Procurar o MASTER
   BLEDevice central = BLE.central();
-  Serial.println("- Discovering central device...");
+  Serial.println("- Procurando um MASTER...");
   delay(500);
 
   if (central) {
-    Serial.println("* Connected to central device!");
-    Serial.print("* Device MAC address: ");
+    Serial.println("* Conectado ao dispositivo MASTER!");
+    Serial.print("* MASTER MAC: ");
     Serial.println(central.address());
     Serial.println(" ");
-
+    //Conecta e pega o valor do movimento
     while (central.connected()) {
       if (gestureCharacteristic.written()) {
-         gesture = gestureCharacteristic.value();
-         writeGesture(gesture);
+         movimento = gestureCharacteristic.value();
+         gravaMovimento(movimento);
        }
     }
     
-    Serial.println("* Disconnected to central device!");
+    Serial.println("* Desconectado do dispositivo MASTER!");
   }
 }
-void writeGesture(int gesture) {
-  Serial.println("- Characteristic <gesture_type> has changed!");
+//Funcao para mudar a caracteristica
+void gravaMovimento(int movimento) {
+  Serial.println("- A característica <movimento> foi alterada!");
   
-   switch (gesture) {
+   switch (movimento) {
       case CIMA:
-        Serial.println("* Actual value: CIMA (red LED on)");
+        Serial.println("* Valor Atual: CIMA (VERMELHO LED ON)");
         Serial.println(" ");
-        digitalWrite(LEDR, LOW);
-        digitalWrite(LEDG, HIGH);
-        digitalWrite(LEDB, HIGH);
+        digitalWrite(LED_RED, LOW);
+        digitalWrite(LED_GREEN, HIGH);
+        digitalWrite(LED_BLUE, HIGH);
         digitalWrite(LED_BUILTIN, LOW);
         break;
       case BAIXO:
-        Serial.println("* Actual value: BAIXO (green LED on)");
+        Serial.println("* Valor Atual: BAIXO (VERDE LED ON)");
         Serial.println(" ");
-        digitalWrite(LEDR, HIGH);
-        digitalWrite(LEDG, LOW);
-        digitalWrite(LEDB, HIGH);
+        digitalWrite(LED_RED, HIGH);
+        digitalWrite(LED_GREEN, LOW);
+        digitalWrite(LED_BLUE, HIGH);
         digitalWrite(LED_BUILTIN, LOW);
         break;
       case DIREITA:
-        Serial.println("* Actual value: DIREITA (blue LED on)");
+        Serial.println("* Valor Atual: DIREITA (AZUL LED ON)");
         Serial.println(" ");
-        digitalWrite(LEDR, HIGH);
-        digitalWrite(LEDG, HIGH);
-        digitalWrite(LEDB, LOW);
+        digitalWrite(LED_RED, HIGH);
+        digitalWrite(LED_GREEN, HIGH);
+        digitalWrite(LED_BLUE, LOW);
         digitalWrite(LED_BUILTIN, LOW);
         break;
       case ESQUERDA:
-        Serial.println("* Actual value: ESQUERDA (built-in LED on)");
+        Serial.println("* Valor Atual: ESQUERDA (BUILTIN LED ON)");
         Serial.println(" ");
-        digitalWrite(LEDR, HIGH);
-        digitalWrite(LEDG, HIGH);
-        digitalWrite(LEDB, HIGH);
+        digitalWrite(LED_RED, HIGH);
+        digitalWrite(LED_GREEN, HIGH);
+        digitalWrite(LED_BLUE, HIGH);
         digitalWrite(LED_BUILTIN, HIGH);
         break;
       default:
-        digitalWrite(LEDR, HIGH);
-        digitalWrite(LEDG, HIGH);
-        digitalWrite(LEDB, HIGH);
+        digitalWrite(LED_RED, HIGH);
+        digitalWrite(LED_GREEN, HIGH);
+        digitalWrite(LED_BLUE, HIGH);
         digitalWrite(LED_BUILTIN, LOW);
         break;
     }      
