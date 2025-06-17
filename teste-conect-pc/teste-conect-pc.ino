@@ -49,9 +49,9 @@ const char* GESTURES[] = {
 //Definindo o uuid e a caracteristica do serviço de acesso do bluetooth
 const char* deviceServiceUuid = "19b10000-e8f2-537e-4f6c-d104768a1214";
 const char* deviceServiceCharacteristicUuid = "19b10001-e8f2-537e-4f6c-d104768a1214";
-
+BLEService gestureService(deviceServiceUuid); 
+BLEIntCharacteristic gestureCharacteristic(deviceServiceCharacteristicUuid, BLERead | BLENotify);
 int movimento = -1;
-int movimentoAnterior = -1;
 
 void setup() {
   Serial.begin(9600);
@@ -88,13 +88,14 @@ void setup() {
   }
   //Definindo nome
   BLE.setLocalName("XIAO (MOVIMENTO)");
-  BLE.setAdvertisedService(deviceServiceUuid);
-  gestureService.addCharacteristic(deviceServiceCharacteristicUuid);
-  BLE.addService(deviceServiceUuid);
+  BLE.setAdvertisedService(gestureService);
+  gestureService.addCharacteristic(gestureCharacteristic);
+  BLE.addService(gestureService);
   gestureCharacteristic.writeValue(-1); 
+
   BLE.advertise();
 
-  Serial.println("XIAO (MASTER)");
+  Serial.println("XIAO (MOVIMENTO)");
   Serial.println(" ");
 }
 
@@ -112,19 +113,16 @@ void conectar(){
     Serial.println(" ");
     //Conecta e pega o valor do movimento
     while (central.connected()) {
-      BLECharacteristic movimentoCharacteristic = central.characteristic(deviceServiceCharacteristicUuid);
       movimento = detectarMovimento();
-      if (movimentoAnterior != movimento) {  
-        movimentoAnterior = movimento;
+      //Atualiza a caracteristica
+      if(movimento!=-1){
         Serial.print("* Escrevendo valor para característica movimento: ");
         Serial.println(movimento);
-        //Atualiza a caracteristica
-        movimentoCharacteristic.writeValue((byte)movimento);
+        gestureCharacteristic.writeValue((byte) movimento);
         Serial.println("* Escrita de valor para característica movimento concluída!");
         Serial.println(" ");
       }
     }
-    
     Serial.println("* Desconectado do dispositivo!");
   }
 }
@@ -189,4 +187,5 @@ int detectarMovimento() {
         return -1;
       }
   }
+  return -1;
 }
