@@ -87,7 +87,7 @@ void setup() {
     while (1);
   }
   //Definindo nome
-  BLE.setLocalName("XIAO (MOVIMENTO)");
+  BLE.setLocalName("XIAO (SLIDE)");
   BLE.setAdvertisedService(gestureService);
   gestureService.addCharacteristic(gestureCharacteristic);
   BLE.addService(gestureService);
@@ -95,7 +95,7 @@ void setup() {
 
   BLE.advertise();
 
-  Serial.println("XIAO (MOVIMENTO)");
+  Serial.println("XIAO (SLIDE)");
   Serial.println(" ");
 }
 
